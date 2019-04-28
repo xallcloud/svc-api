@@ -13,3 +13,8 @@
 # limitations under the License.
 
 runtime: go111
+
+handlers:
+- url: /
+  static_files: www/index.html
+  upload: www/index.html

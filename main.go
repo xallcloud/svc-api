@@ -29,7 +29,8 @@ import (
 // [START main_func]
 
 func main() {
-	http.HandleFunc("/", indexHandler)
+	http.HandleFunc("/api", apiHandler)
+	//http.HandleFunc("/", indexHandler)
 
 	// [START setting_port]
 	port := os.Getenv("PORT")
@@ -48,12 +49,13 @@ func main() {
 // [START indexHandler]
 
 // indexHandler responds to requests with our greeting.
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
+
+func apiHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/api" {
 		http.NotFound(w, r)
 		return
 	}
-	fmt.Fprint(w, "xallcloud, version 1.0!")
+	fmt.Fprint(w, `{"name": "xallcloud", "version": "0.1.0"}`)
 }
 
 // [END indexHandler]
