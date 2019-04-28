@@ -12,6 +12,7 @@
 # below:
 .git
 .gitignore
+Makefile
 
 # Binaries for programs and plugins
 *.exe
