@@ -21,7 +21,7 @@ import (
 
 const (
 	appName    = "svc-api"
-	appVersion = "0.0.1-alfa001"
+	appVersion = "0.0.1-alfa004"
 	httpPort   = "8080"
 	topicName  = "topicApi"
 	projectID  = "xallcloud"
@@ -32,7 +32,7 @@ var topic *pubsub.Topic
 
 func main() {
 	log.SetFlags(log.LstdFlags)
-	log.Println("Starting", appName)
+	log.Println("Starting", appName, "version", appVersion)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -73,7 +73,7 @@ func postCallpointHanlder(w http.ResponseWriter, r *http.Request) {
 
 	var cp pbt.Callpoint
 
-	if err := jsonpb.Unmarshal(r.Body, &n); err != nil {
+	if err := jsonpb.Unmarshal(r.Body, &cp); err != nil {
 		processError(err, w, http.StatusBadRequest, "ERROR", "Bad Request! Unable to decode JSON")
 		return
 	}
@@ -116,7 +116,7 @@ func postCallpointHanlder(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 
-	key, err := AddCallpoint(ctx, dsClient, dsCp)
+	key, err := CallpointAdd(ctx, dsClient, dsCp)
 	if err != nil && key == nil {
 		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not save callpoint to datastore!")
 		return
@@ -143,8 +143,18 @@ func postCallpointHanlder(w http.ResponseWriter, r *http.Request) {
 func getCallpointsHanlder(w http.ResponseWriter, r *http.Request) {
 	log.Println("[/callpoints:GET] Requested get all callpoints")
 
+	log.Println("[getCallpointsHanlder] Create Context.")
+
+	ctx := context.Background()
+
+	cps, err := CallpointsListAll(ctx, dsClient)
+	if err != nil {
+		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not list callpoints!")
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, `{"callpoints": {} }`)
+	CallpointsToJSON(w, cps)
 }
 
 func processError(e error, w http.ResponseWriter, httpCode int, status string, detail string) {
