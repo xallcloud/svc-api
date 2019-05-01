@@ -54,8 +54,7 @@ func CallpointGetByCpID(ctx context.Context, client *datastore.Client, cpID stri
 
 	var callpoints []*dst.Callpoint
 	query := datastore.NewQuery(dst.KindCallpoints).
-		Filter("cpID =", cpID).
-		Order("created")
+		Filter("cpID =", cpID)
 
 	log.Println("[CallpointGetByCpID] will perform query")
 
