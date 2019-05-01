@@ -305,6 +305,65 @@ func DevicesToJSON(w io.Writer, dvs []*dst.Device) {
 /// Assignments
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+//AssignmentAdd method that
+func AssignmentAdd(ctx context.Context, client *datastore.Client, asgn *dst.Assignment) (*datastore.Key, error) {
+
+	// first check if there already exists this Callpoint ID:
+	asgns, err := AssignmentGetByAsID(ctx, client, asgn.AsID)
+	if err != nil {
+		return nil, err
+	}
+
+	// if has already the value, return key and error
+	if len(asgns) > 0 {
+		return &datastore.Key{ID: asgns[0].ID, Kind: dst.KindAssignments}, fmt.Errorf("asID allready exists. %d", asgns[0].ID)
+	}
+
+	// copy to new record
+	n := &dst.Assignment{
+		AsID:        asgn.AsID,
+		Created:     time.Now(),
+		Changed:     time.Now(),
+		Description: asgn.Description,
+		CpID:        asgn.CpID,
+		DvID:        asgn.DvID,
+		Level:       asgn.Level,
+		Settings:    asgn.Settings,
+		RawRequest:  asgn.RawRequest,
+	}
+
+	// do the insert
+	key := datastore.IncompleteKey(dst.KindAssignments, nil)
+	return client.Put(ctx, key, n)
+}
+
+// AssignmentGetByAsID will return the list of devices with the same dvID
+func AssignmentGetByAsID(ctx context.Context, client *datastore.Client, asID string) ([]*dst.Assignment, error) {
+	// Create a query to fetch all Task entities, ordered by "created".
+
+	log.Println("[AssignmentGetByAsID] will filter by asID:", asID)
+
+	var assignments []*dst.Assignment
+	query := datastore.NewQuery(dst.KindAssignments).
+		Filter("asID =", asID)
+
+	log.Println("[AssignmentGetByAsID] will perform query")
+
+	keys, err := client.GetAll(ctx, query, &assignments)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println("[AssignmentGetByAsID] Total keys returned", len(keys))
+
+	// Set the ID field on each Assignment from the corresponding key.
+	for i, key := range keys {
+		assignments[i].ID = key.ID
+	}
+
+	return assignments, nil
+}
+
 // AssignmentsByCpID will return the list of assignments and its information with the same cpID
 func AssignmentsByCpID(ctx context.Context, client *datastore.Client, cpID string) ([]*dst.Assignment, error) {
 	// Create a query to fetch all Task entities, ordered by "created".

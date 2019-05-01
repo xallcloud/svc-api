@@ -16,7 +16,7 @@ import (
 
 const (
 	appName    = "svc-api"
-	appVersion = "0.0.1-alfa012"
+	appVersion = "0.0.1-alfa013"
 	httpPort   = "8080"
 	topicName  = "topicApi"
 	projectID  = "xallcloud"
@@ -58,8 +58,7 @@ func main() {
 	router.HandleFunc("/api/device/{id}", deleteDevice).Methods("DELETE")
 	router.HandleFunc("/api/device", postDevice).Methods("POST")
 	// Assignments
-	//router.HandleFunc("/api/assignments", getAssignments).Methods("GET")
-	//router.HandleFunc("/api/assignment", postAssignment).Methods("POST")
+	router.HandleFunc("/api/assignment", postAssignment).Methods("POST")
 	router.HandleFunc("/api/assignments/callpoint/{cpID}", getAssignmentsByCallpoint).Methods("GET")
 	//router.HandleFunc("/api/device", postDevice).Methods("POST")
 
