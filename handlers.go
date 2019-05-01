@@ -301,3 +301,35 @@ func deleteDevice(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 	w.Header().Set("Content-Type", "text/plain")
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+/// Assignments
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+func getAssignmentsByCallpoint(w http.ResponseWriter, r *http.Request) {
+	log.Println("[/assignments/callpoint:GET] Requested all devices associated to a callpoint")
+
+	params := mux.Vars(r)
+	cpID := params["cpID"]
+
+	log.Println("[getAssignmentsByCallpoint] parameter cpID:", cpID)
+
+	if cpID == "" {
+		processError(nil, w, http.StatusInternalServerError, "ERROR", "Invalid cpID!")
+		return
+	}
+
+	log.Println("[getAssignmentsByCallpoint] Create Context.")
+
+	ctx := context.Background()
+
+	asgns, err := AssignmentsByCpID(ctx, dsClient, cpID)
+	if err != nil {
+		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not list assignments!")
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	AssignmentsToJSON(w, asgns)
+}

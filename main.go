@@ -16,7 +16,7 @@ import (
 
 const (
 	appName    = "svc-api"
-	appVersion = "0.0.1-alfa009"
+	appVersion = "0.0.1-alfa012"
 	httpPort   = "8080"
 	topicName  = "topicApi"
 	projectID  = "xallcloud"
@@ -45,16 +45,23 @@ func main() {
 	}
 
 	router := mux.NewRouter()
-	//define all the routes. The implementation is done on the "handlers.go" file
+	// define all the routes.
+	// The implementation is done on the "handlers.go" file
+	// Common to all services
 	router.HandleFunc("/api/version", getVersion).Methods("GET")
-	//callpoints
+	// Callpoints
 	router.HandleFunc("/api/callpoints", getCallpoints).Methods("GET")
 	router.HandleFunc("/api/callpoint/{id}", deleteCallpoint).Methods("DELETE")
 	router.HandleFunc("/api/callpoint", postCallpoint).Methods("POST")
-	//devices
+	// Devices
 	router.HandleFunc("/api/devices", getDevices).Methods("GET")
 	router.HandleFunc("/api/device/{id}", deleteDevice).Methods("DELETE")
 	router.HandleFunc("/api/device", postDevice).Methods("POST")
+	// Assignments
+	//router.HandleFunc("/api/assignments", getAssignments).Methods("GET")
+	//router.HandleFunc("/api/assignment", postAssignment).Methods("POST")
+	router.HandleFunc("/api/assignments/callpoint/{cpID}", getAssignmentsByCallpoint).Methods("GET")
+	//router.HandleFunc("/api/device", postDevice).Methods("POST")
 
 	// Start service
 	log.Printf("Service: %s. Listening on port %s", appName, port)

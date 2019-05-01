@@ -300,3 +300,81 @@ func DevicesToJSON(w io.Writer, dvs []*dst.Device) {
 	fmt.Fprintf(tw, "\n]")
 	tw.Flush()
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+/// Assignments
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+// AssignmentsByCpID will return the list of assignments and its information with the same cpID
+func AssignmentsByCpID(ctx context.Context, client *datastore.Client, cpID string) ([]*dst.Assignment, error) {
+	// Create a query to fetch all Task entities, ordered by "created".
+
+	log.Println("[AssignmentsByCpID] will filter by cpID:", cpID)
+
+	var assignments []*dst.Assignment
+	query := datastore.NewQuery(dst.KindAssignments).
+		Filter("cpID =", cpID)
+
+	log.Println("[AssignmentsByCpID] will perform query")
+
+	keys, err := client.GetAll(ctx, query, &assignments)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println("[AssignmentsByCpID] Total keys returned", len(keys))
+
+	// Set the ID field on each Callpoint from the corresponding key.
+	for i, key := range keys {
+		assignments[i].ID = key.ID
+	}
+
+	return assignments, nil
+}
+
+// AssignmentsToJSON prints the assignments into JSON to the given writer.
+func AssignmentsToJSON(w io.Writer, asgs []*dst.Assignment) {
+	const line = `%s
+	{
+		"ID": %d,
+		"asID": "%s",
+		"created": "%v",
+		"changed": "%v",
+		"description": "%s",
+		"cpID": "%s",
+		"dvID": "%s",
+		"level": %d,
+		"settings": %s,
+		"rawRequest": %s
+	}`
+
+	// Use a tab writer to help make results pretty.
+	tw := tabwriter.NewWriter(w, 4, 4, 1, ' ', 0) // Min cell size of 8.
+
+	var term = ""
+	var rawRequest string
+	fmt.Fprintf(tw, "[\n")
+	for _, a := range asgs {
+		rawRequest = strings.TrimSpace(a.RawRequest)
+
+		if rawRequest == "" {
+			rawRequest = "null"
+		}
+
+		fmt.Fprintf(tw, line, term,
+			a.ID,
+			a.DvID,
+			a.Created,
+			a.Changed,
+			a.Description,
+			a.CpID,
+			a.DvID,
+			a.Level,
+			a.Settings,
+			rawRequest,
+		)
+		term = ","
+	}
+	fmt.Fprintf(tw, "\n]")
+	tw.Flush()
+}
