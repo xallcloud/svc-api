@@ -2,17 +2,20 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"cloud.google.com/go/datastore"
 	"cloud.google.com/go/pubsub"
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/gorilla/mux"
 
-	pbn "github.com/xallcloud/api/proto"
+	dst "github.com/xallcloud/api/datastore"
+	pbt "github.com/xallcloud/api/proto"
 	_ "github.com/xallcloud/gcp"
 )
 
@@ -25,7 +28,6 @@ const (
 )
 
 var dsClient *datastore.Client
-var psClient *pubsub.Client
 var topic *pubsub.Topic
 
 func main() {
@@ -39,27 +41,13 @@ func main() {
 	}
 
 	ctx := context.Background()
-	// DATASTORE
+	// DATASTORE Initialization
 	log.Println("Connect to Google datastore on project: " + projectID)
 	var err error
 	dsClient, err = datastore.NewClient(ctx, projectID)
 	if err != nil {
 		log.Fatalf("Failed to create datastore client: %v", err)
 	}
-	// PUB/SUB
-	log.Println("Connect to Google Pub/Sub on project: " + projectID)
-	// Creates a client
-	psClient, err = pubsub.NewClient(ctx, projectID)
-	if err != nil {
-		log.Fatalf("Failed to create client: %v", err)
-	}
-	// Create the topic
-	topic, err = gcp.CreateTopic(topicName, psClient)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Printf("Using topic %v to post notifications.\n", topic)
 
 	router := mux.NewRouter()
 
@@ -81,15 +69,75 @@ func getVersionHanlder(w http.ResponseWriter, r *http.Request) {
 func postCallpointHanlder(w http.ResponseWriter, r *http.Request) {
 	log.Println("[/callpoint:POST] Post a new Callpoint.")
 
-	var n pbn.Notification
+	log.Println("[postCallpointHanlder] decode JSON")
+
+	var cp pbt.Callpoint
 
 	if err := jsonpb.Unmarshal(r.Body, &n); err != nil {
 		processError(err, w, http.StatusBadRequest, "ERROR", "Bad Request! Unable to decode JSON")
 		return
 	}
 
+	log.Println("[postCallpointHanlder] validate JSON")
+
+	//For now, only accept "Notify" Commands
+	if cp.CpID == "" && cp.AbsAddress == "" {
+		processError(nil, w, http.StatusBadRequest, "ERROR", "Mandatory field(s) missing!")
+		return
+	}
+
+	log.Println("[postCallpointHanlder] Encode command back to JSON.")
+
+	ma := jsonpb.Marshaler{}
+	body, err := ma.MarshalToString(&cp)
+	if err != nil {
+		processError(err, w, http.StatusBadRequest, "ERROR", "Unable to encode proto data to JSON!")
+		return
+	}
+
+	if len(body) == 0 {
+		processError(err, w, http.StatusBadRequest, "ERROR", "Encoding proto data to JSON: empty raw body!")
+		return
+	}
+
+	dsCp := &dst.Callpoint{
+		CpID:        cp.CpID,
+		Created:     time.Now(),
+		AbsAddress:  cp.AbsAddress,
+		Label:       cp.Label,
+		Description: cp.Description,
+		Type:        cp.Type,
+		Priority:    cp.Priority,
+		Icon:        cp.Icon,
+		RawRequest:  string(body),
+	}
+
+	log.Println("[postCallpointHanlder] Saving message to datastore")
+
+	ctx := context.Background()
+
+	key, err := AddCallpoint(ctx, dsClient, dsCp)
+	if err != nil && key == nil {
+		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not save callpoint to datastore!")
+		return
+	}
+	cp.KeyID = key.ID
+
+	exists := (err != nil && key != nil)
+
+	if !exists {
+		//PubNotification(ctx, psClient, &n)
+
+		log.Printf("[datastore] stored using key: %d | %s", key.ID, cp.CpID)
+		w.WriteHeader(http.StatusCreated)
+	} else {
+		log.Printf("[datastore] duplicate eventID. Was stored using key: %d | %s", key.ID, cp.CpID)
+		w.WriteHeader(http.StatusConflict)
+	}
+
+	// final OK return
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, fmt.Sprintf(`{"service": "%s", "version": "%s"}`, appName, appVersion))
+	json.NewEncoder(w).Encode(pbt.Callpoint{CpID: cp.CpID, KeyID: cp.KeyID})
 }
 
 func getCallpointsHanlder(w http.ResponseWriter, r *http.Request) {
@@ -97,4 +145,12 @@ func getCallpointsHanlder(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, `{"callpoints": {} }`)
+}
+
+func processError(e error, w http.ResponseWriter, httpCode int, status string, detail string) {
+	log.Println(e)
+
+	w.WriteHeader(http.StatusBadRequest)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, "{\"status\":\"%s\", \"detail\":\"%s\"}", status, detail)
 }
