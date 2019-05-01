@@ -150,6 +150,44 @@ func CallpointsToJSON(w io.Writer, cps []*dst.Callpoint) {
 	tw.Flush()
 }
 
+// CallpointToJSONString prints the callpoints into JSON to the given writer.
+func CallpointToJSONString(c *dst.Callpoint) string {
+	const line = `
+	{
+		"ID": %d,
+		"cpID": "%s",
+		"created": "%v",
+		"absAddress": "%s",
+		"label": "%s",
+		"description": "%s",
+		"type": %d,
+		"priority": %d,
+		"icon": "%s",
+		"rawRequest": %s
+	}`
+
+	rawRequest := strings.TrimSpace(c.RawRequest)
+
+	if rawRequest == "" {
+		rawRequest = "null"
+	}
+
+	r := fmt.Sprintf(line,
+		c.ID,
+		c.CpID,
+		c.Created,
+		c.AbsAddress,
+		c.Label,
+		c.Description,
+		c.Type,
+		c.Priority,
+		c.Icon,
+		rawRequest,
+	)
+
+	return r
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// Devices
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -301,6 +339,58 @@ func DevicesToJSON(w io.Writer, dvs []*dst.Device) {
 	tw.Flush()
 }
 
+// DeviceToJSONString prints the callpoints into JSON to the given writer.
+func DeviceToJSONString(d *dst.Device) string {
+	const line = `
+	{
+		"ID": %d,
+		"dvID": "%s",
+		"created": "%v",
+		"label": "%s",
+		"description": "%s",
+		"type": %d,
+		"priority": %d,
+		"isTwoWay": %s,
+		"category": "%s",
+		"destination": "%s",
+		"icon": "%s",
+		"settings": %s,
+		"rawRequest": %s
+	}`
+
+	rawRequest := strings.TrimSpace(d.RawRequest)
+
+	if rawRequest == "" {
+		rawRequest = "null"
+	}
+
+	isTwoWayString := ""
+
+	if d.IsTwoWay {
+		isTwoWayString = "true"
+	} else {
+		isTwoWayString = "false"
+	}
+
+	r := fmt.Sprintf(line,
+		d.ID,
+		d.DvID,
+		d.Created,
+		d.Label,
+		d.Description,
+		d.Type,
+		d.Priority,
+		isTwoWayString,
+		d.Category,
+		d.Destination,
+		d.Icon,
+		d.Settings,
+		rawRequest,
+	)
+
+	return r
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// Assignments
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -386,6 +476,41 @@ func AssignmentsByCpID(ctx context.Context, client *datastore.Client, cpID strin
 	// Set the ID field on each Callpoint from the corresponding key.
 	for i, key := range keys {
 		assignments[i].ID = key.ID
+
+	}
+
+	//////////////////////////////////////////////////////////////////
+	// extra: Get information from the full objects
+	//////////////////////////////////////////////////////////////////
+
+	for i, a := range assignments {
+
+		// Load Callpoint information
+		cps, err := CallpointGetByCpID(ctx, client, a.CpID)
+		if err == nil && len(cps) > 0 {
+			assignments[i].CallpointObj.CpID = cps[0].CpID
+			assignments[i].CallpointObj.Label = cps[0].Label
+			assignments[i].CallpointObj.Priority = cps[0].Priority
+			assignments[i].CallpointObj.AbsAddress = cps[0].AbsAddress
+			assignments[i].CallpointObj.Type = cps[0].Type
+			assignments[i].CallpointObj.Icon = cps[0].Icon
+			assignments[i].CallpointObj.Description = cps[0].Description
+		}
+
+		// Load Device information
+		dvs, err := DeviceGetByDvID(ctx, client, a.DvID)
+		if err == nil && len(dvs) > 0 {
+			assignments[i].DeviceObj.DvID = dvs[0].DvID
+			assignments[i].DeviceObj.Label = dvs[0].Label
+			assignments[i].DeviceObj.Priority = dvs[0].Priority
+			assignments[i].DeviceObj.Type = dvs[0].Type
+			assignments[i].DeviceObj.Icon = dvs[0].Icon
+			assignments[i].DeviceObj.Description = dvs[0].Description
+			assignments[i].DeviceObj.IsTwoWay = dvs[0].IsTwoWay
+			assignments[i].DeviceObj.Category = dvs[0].Category
+			assignments[i].DeviceObj.Settings = dvs[0].Settings
+			assignments[i].DeviceObj.RawRequest = dvs[0].RawRequest
+		}
 	}
 
 	return assignments, nil
@@ -404,14 +529,16 @@ func AssignmentsToJSON(w io.Writer, asgs []*dst.Assignment) {
 		"dvID": "%s",
 		"level": %d,
 		"settings": %s,
-		"rawRequest": %s
+		"rawRequest": %s,
+		"callpoint": %s,
+		"device": %s
 	}`
 
 	// Use a tab writer to help make results pretty.
 	tw := tabwriter.NewWriter(w, 4, 4, 1, ' ', 0) // Min cell size of 8.
 
 	var term = ""
-	var rawRequest string
+	var rawRequest, rawCallpoint, rawDevice string
 	fmt.Fprintf(tw, "[\n")
 	for _, a := range asgs {
 		rawRequest = strings.TrimSpace(a.RawRequest)
@@ -419,6 +546,9 @@ func AssignmentsToJSON(w io.Writer, asgs []*dst.Assignment) {
 		if rawRequest == "" {
 			rawRequest = "null"
 		}
+
+		rawCallpoint = CallpointToJSONString(&a.CallpointObj)
+		rawDevice = DeviceToJSONString(&a.DeviceObj)
 
 		fmt.Fprintf(tw, line, term,
 			a.ID,
@@ -431,6 +561,8 @@ func AssignmentsToJSON(w io.Writer, asgs []*dst.Assignment) {
 			a.Level,
 			a.Settings,
 			rawRequest,
+			rawCallpoint,
+			rawDevice,
 		)
 		term = ","
 	}
