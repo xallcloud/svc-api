@@ -92,6 +92,11 @@ func CallpointsListAll(ctx context.Context, client *datastore.Client) ([]*dst.Ca
 	return cps, nil
 }
 
+// CallpointDelete will delete a notification from the datastore
+func CallpointDelete(ctx context.Context, client *datastore.Client, cpKeyID int64) error {
+	return client.Delete(ctx, datastore.IDKey(dst.KindCallpoints, cpKeyID, nil))
+}
+
 // CallpointsToJSON prints the callpoints into JSON to the given writer.
 func CallpointsToJSON(w io.Writer, cps []*dst.Callpoint) {
 	const line = `%s

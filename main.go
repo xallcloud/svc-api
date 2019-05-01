@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"cloud.google.com/go/datastore"
@@ -21,7 +22,7 @@ import (
 
 const (
 	appName    = "svc-api"
-	appVersion = "0.0.1-alfa005"
+	appVersion = "0.0.1-alfa006"
 	httpPort   = "8080"
 	topicName  = "topicApi"
 	projectID  = "xallcloud"
@@ -53,6 +54,7 @@ func main() {
 
 	router.HandleFunc("/api/version", getVersionHanlder).Methods("GET")
 	router.HandleFunc("/api/callpoint", postCallpointHanlder).Methods("POST")
+	router.HandleFunc("/api/callpoint/{id}", deleteCallpointHandler).Methods("DELETE")
 	router.HandleFunc("/api/callpoints", getCallpointsHanlder).Methods("GET")
 
 	log.Printf("Service: %s. Listening on port %s", appName, port)
@@ -62,6 +64,7 @@ func main() {
 func getVersionHanlder(w http.ResponseWriter, r *http.Request) {
 	log.Println("[/version:GET] Requested api version.")
 
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, fmt.Sprintf(`{"service": "%s", "version": "%s"}`, appName, appVersion))
 }
@@ -135,7 +138,6 @@ func postCallpointHanlder(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusConflict)
 	}
 
-	// final OK return
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(pbt.Callpoint{CpID: cp.CpID, KeyID: cp.KeyID})
 }
@@ -153,8 +155,37 @@ func getCallpointsHanlder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	CallpointsToJSON(w, cps)
+}
+
+func deleteCallpointHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("[/callpoint:DELETE] Requested delete a callpoint based on Key")
+
+	params := mux.Vars(r)
+	i := params["id"]
+
+	log.Println("[deleteCallpointHandler] parameter id:", i)
+
+	id, err := strconv.ParseInt(i, 10, 64)
+	if err != nil {
+		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not convert parameter ID to a proper number!")
+		return
+	}
+
+	log.Println("[deleteCallpointHandler] Create Context.")
+
+	ctx := context.Background()
+
+	err = CallpointDelete(ctx, dsClient, id)
+	if err != nil {
+		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not delete callpoint!")
+		return
+	}
+
+	w.WriteHeader(http.StatusAccepted)
+	w.Header().Set("Content-Type", "text/plain")
 }
 
 func processError(e error, w http.ResponseWriter, httpCode int, status string, detail string) {
@@ -162,5 +193,5 @@ func processError(e error, w http.ResponseWriter, httpCode int, status string, d
 
 	w.WriteHeader(http.StatusBadRequest)
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "{\"status\":\"%s\", \"detail\":\"%s\"}", status, detail)
+	fmt.Fprintf(w, `{"status":"%s", "description":"%s", "fullError":"%s"}`, status, detail, e.Error())
 }
