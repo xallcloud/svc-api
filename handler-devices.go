@@ -20,7 +20,7 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 func postDevice(w http.ResponseWriter, r *http.Request) {
-	log.Println("[/device:POST] Post a new Callpoint.")
+	log.Println("[/device:POST] Post a new Device.")
 
 	log.Println("[postDevice] decode JSON")
 
@@ -33,7 +33,6 @@ func postDevice(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("[postDevice] validate JSON")
 
-	//For now, only accept "Notify" Commands
 	if dv.DvID == "" || dv.Category == "" || dv.Destination == "" {
 		processError(nil, w, http.StatusBadRequest, "ERROR", "Mandatory field(s) missing!")
 		return
@@ -76,7 +75,7 @@ func postDevice(w http.ResponseWriter, r *http.Request) {
 
 	key, err := DeviceAdd(ctx, dsClient, dsDv)
 	if err != nil && key == nil {
-		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not save callpoint to datastore!")
+		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not save device to datastore!")
 		return
 	}
 	dv.KeyID = key.ID

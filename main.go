@@ -11,18 +11,19 @@ import (
 	"cloud.google.com/go/pubsub"
 	"github.com/gorilla/mux"
 
-	_ "github.com/xallcloud/gcp"
+	gcp "github.com/xallcloud/gcp"
 )
 
 const (
 	appName    = "svc-api"
-	appVersion = "0.0.1-alfa018"
+	appVersion = "0.0.1.alfa.20-pubsub"
 	httpPort   = "8080"
-	topicName  = "topicApi"
+	topicName  = "notify"
 	projectID  = "xallcloud"
 )
 
 var dsClient *datastore.Client
+var psClient *pubsub.Client
 var topic *pubsub.Topic
 
 func main() {
@@ -35,18 +36,35 @@ func main() {
 		log.Printf("Service: %s. Defaulting to port %s", appName, port)
 	}
 
+	var err error
 	ctx := context.Background()
 	// DATASTORE Initialization
-	log.Println("Connect to Google datastore on project: " + projectID)
-	var err error
+	log.Println("Connect to Google 'datastore' on project: " + projectID)
+
 	dsClient, err = datastore.NewClient(ctx, projectID)
 	if err != nil {
 		log.Fatalf("Failed to create datastore client: %v", err)
 	}
 
+	// PUBSUB Initialization
+	log.Println("Connect to Google 'pub/sub' on project: " + projectID)
+
+	psClient, err = pubsub.NewClient(ctx, projectID)
+	if err != nil {
+		log.Fatalf("Failed to create client: %v", err)
+	}
+
+	topic, err = gcp.CreateTopic(topicName, psClient)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Using topic %v to post actions.\n", topic)
+
+	// HTTP SERVER Initialization
 	router := mux.NewRouter()
-	// define all the routes.
-	// The implementation is done on the "handlers.go" file
+	// define all the routes for the HTTP server.
+	// The implementation is done on the "handler*.go" files
 	// Common to all services
 	router.HandleFunc("/api/version", getVersion).Methods("GET")
 	// Callpoints
@@ -60,7 +78,9 @@ func main() {
 	// Assignments
 	router.HandleFunc("/api/assignment", postAssignment).Methods("POST")
 	router.HandleFunc("/api/assignments/callpoint/{cpID}", getAssignmentsByCallpoint).Methods("GET")
-	//router.HandleFunc("/api/device", postDevice).Methods("POST")
+	// Actions
+	router.HandleFunc("/api/actions", getActions).Methods("GET")
+	router.HandleFunc("/api/action", postAction).Methods("POST")
 
 	// Start service
 	log.Printf("Service: %s. Listening on port %s", appName, port)
