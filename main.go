@@ -16,7 +16,7 @@ import (
 
 const (
 	appName    = "svc-api"
-	appVersion = "0.0.1.alfa.21-pubsub-refactoring"
+	appVersion = "0.0.1.alfa.22-events-get"
 	httpPort   = "8080"
 	topicName  = "notify"
 	projectID  = "xallcloud"
@@ -81,6 +81,9 @@ func main() {
 	// Actions
 	router.HandleFunc("/api/actions", getActions).Methods("GET")
 	router.HandleFunc("/api/action", postAction).Methods("POST")
+	//Events
+	router.HandleFunc("/api/events", getEvents).Methods("GET")
+	router.HandleFunc("/api/events/callpoint/{cpID}", getEventsByCallpoint).Methods("GET")
 
 	// Start service
 	log.Printf("Service: %s. Listening on port %s", appName, port)
