@@ -16,7 +16,7 @@ import (
 
 const (
 	appName    = "svc-api"
-	appVersion = "0.0.1-alfa017"
+	appVersion = "0.0.1-alfa018"
 	httpPort   = "8080"
 	topicName  = "topicApi"
 	projectID  = "xallcloud"
