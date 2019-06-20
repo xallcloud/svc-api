@@ -10,6 +10,7 @@ import (
 	"github.com/gogo/protobuf/jsonpb"
 	dst "github.com/xallcloud/api/datastore"
 	pbt "github.com/xallcloud/api/proto"
+	gcp "github.com/xallcloud/gcp"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +65,7 @@ func postAction(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 
-	key, err := ActionAdd(ctx, dsClient, dsAc)
+	key, err := gcp.ActionAdd(ctx, dsClient, dsAc)
 	if err != nil && key == nil {
 		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not save action to datastore!")
 		return
@@ -98,7 +99,7 @@ func getActions(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 
-	dvs, err := ActionsListAll(ctx, dsClient)
+	dvs, err := gcp.ActionsListAll(ctx, dsClient)
 	if err != nil {
 		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not list actions!")
 		return
@@ -106,5 +107,5 @@ func getActions(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	ActionsToJSON(w, dvs)
+	gcp.ActionsToJSON(w, dvs)
 }

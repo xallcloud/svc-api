@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 	dst "github.com/xallcloud/api/datastore"
 	pbt "github.com/xallcloud/api/proto"
+	"github.com/xallcloud/gcp"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +74,7 @@ func postDevice(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 
-	key, err := DeviceAdd(ctx, dsClient, dsDv)
+	key, err := gcp.DeviceAdd(ctx, dsClient, dsDv)
 	if err != nil && key == nil {
 		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not save device to datastore!")
 		return
@@ -119,7 +120,7 @@ func getDevices(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 
-	dvs, err := DevicesListAll(ctx, dsClient)
+	dvs, err := gcp.DevicesListAll(ctx, dsClient)
 	if err != nil {
 		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not list devices!")
 		return
@@ -127,7 +128,7 @@ func getDevices(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	DevicesToJSON(w, dvs)
+	gcp.DevicesToJSON(w, dvs)
 }
 
 func deleteDevice(w http.ResponseWriter, r *http.Request) {
@@ -148,7 +149,7 @@ func deleteDevice(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 
-	err = DeviceDelete(ctx, dsClient, id)
+	err = gcp.DeviceDelete(ctx, dsClient, id)
 	if err != nil {
 		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not delete device!")
 		return

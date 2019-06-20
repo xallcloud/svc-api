@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	dst "github.com/xallcloud/api/datastore"
 	pbt "github.com/xallcloud/api/proto"
+	"github.com/xallcloud/gcp"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +70,7 @@ func postAssignment(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 
-	key, err := AssignmentAdd(ctx, dsClient, dsAsgn)
+	key, err := gcp.AssignmentAdd(ctx, dsClient, dsAsgn)
 	if err != nil && key == nil {
 		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not save assignment to datastore!")
 		return
@@ -107,7 +108,7 @@ func getAssignmentsByCallpoint(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 
-	asgns, err := AssignmentsByCpID(ctx, dsClient, cpID)
+	asgns, err := gcp.AssignmentsByCpID(ctx, dsClient, cpID)
 	if err != nil {
 		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not list assignments!")
 		return
@@ -115,5 +116,5 @@ func getAssignmentsByCallpoint(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	AssignmentsToJSON(w, asgns)
+	gcp.AssignmentsToJSON(w, asgns)
 }

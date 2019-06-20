@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	dst "github.com/xallcloud/api/datastore"
 	pbt "github.com/xallcloud/api/proto"
+	"github.com/xallcloud/gcp"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +69,7 @@ func postCallpoint(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 
-	key, err := CallpointAdd(ctx, dsClient, dsCp)
+	key, err := gcp.CallpointAdd(ctx, dsClient, dsCp)
 	if err != nil && key == nil {
 		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not save callpoint to datastore!")
 		return
@@ -98,7 +99,7 @@ func getCallpoints(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 
-	cps, err := CallpointsListAll(ctx, dsClient)
+	cps, err := gcp.CallpointsListAll(ctx, dsClient)
 	if err != nil {
 		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not list callpoints!")
 		return
@@ -106,7 +107,7 @@ func getCallpoints(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	CallpointsToJSON(w, cps)
+	gcp.CallpointsToJSON(w, cps)
 }
 
 func deleteCallpoint(w http.ResponseWriter, r *http.Request) {
@@ -127,7 +128,7 @@ func deleteCallpoint(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 
-	err = CallpointDelete(ctx, dsClient, id)
+	err = gcp.CallpointDelete(ctx, dsClient, id)
 	if err != nil {
 		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not delete callpoint!")
 		return
