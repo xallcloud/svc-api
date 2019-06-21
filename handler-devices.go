@@ -76,7 +76,7 @@ func postDevice(w http.ResponseWriter, r *http.Request) {
 
 	key, err := gcp.DeviceAdd(ctx, dsClient, dsDv)
 	if err != nil && key == nil {
-		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not save device to datastore!")
+		processError(err, w, http.StatusBadRequest, "ERROR", "Could not save device to datastore!")
 		return
 	}
 	dv.KeyID = key.ID
@@ -122,7 +122,7 @@ func getDevices(w http.ResponseWriter, r *http.Request) {
 
 	dvs, err := gcp.DevicesListAll(ctx, dsClient)
 	if err != nil {
-		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not list devices!")
+		processError(err, w, http.StatusBadRequest, "ERROR", "Could not list devices!")
 		return
 	}
 
@@ -141,7 +141,7 @@ func deleteDevice(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.ParseInt(i, 10, 64)
 	if err != nil {
-		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not convert parameter ID to a proper number!")
+		processError(err, w, http.StatusBadRequest, "ERROR", "Could not convert parameter ID to a proper number!")
 		return
 	}
 
@@ -151,7 +151,7 @@ func deleteDevice(w http.ResponseWriter, r *http.Request) {
 
 	err = gcp.DeviceDelete(ctx, dsClient, id)
 	if err != nil {
-		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not delete device!")
+		processError(err, w, http.StatusBadRequest, "ERROR", "Could not delete device!")
 		return
 	}
 

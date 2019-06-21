@@ -71,7 +71,7 @@ func postCallpoint(w http.ResponseWriter, r *http.Request) {
 
 	key, err := gcp.CallpointAdd(ctx, dsClient, dsCp)
 	if err != nil && key == nil {
-		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not save callpoint to datastore!")
+		processError(err, w, http.StatusBadRequest, "ERROR", "Could not save callpoint to datastore!")
 		return
 	}
 	cp.KeyID = key.ID
@@ -101,7 +101,7 @@ func getCallpoints(w http.ResponseWriter, r *http.Request) {
 
 	cps, err := gcp.CallpointsListAll(ctx, dsClient)
 	if err != nil {
-		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not list callpoints!")
+		processError(err, w, http.StatusBadRequest, "ERROR", "Could not list callpoints!")
 		return
 	}
 
@@ -120,7 +120,7 @@ func deleteCallpoint(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.ParseInt(i, 10, 64)
 	if err != nil {
-		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not convert parameter ID to a proper number!")
+		processError(err, w, http.StatusBadRequest, "ERROR", "Could not convert parameter ID to a proper number!")
 		return
 	}
 
@@ -130,7 +130,7 @@ func deleteCallpoint(w http.ResponseWriter, r *http.Request) {
 
 	err = gcp.CallpointDelete(ctx, dsClient, id)
 	if err != nil {
-		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not delete callpoint!")
+		processError(err, w, http.StatusBadRequest, "ERROR", "Could not delete callpoint!")
 		return
 	}
 

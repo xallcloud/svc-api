@@ -72,7 +72,7 @@ func postAssignment(w http.ResponseWriter, r *http.Request) {
 
 	key, err := gcp.AssignmentAdd(ctx, dsClient, dsAsgn)
 	if err != nil && key == nil {
-		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not save assignment to datastore!")
+		processError(err, w, http.StatusBadRequest, "ERROR", "Could not save assignment to datastore!")
 		return
 	}
 	asgn.KeyID = key.ID
@@ -100,7 +100,7 @@ func getAssignmentsByCallpoint(w http.ResponseWriter, r *http.Request) {
 	log.Println("[getAssignmentsByCallpoint] parameter cpID:", cpID)
 
 	if cpID == "" {
-		processError(nil, w, http.StatusInternalServerError, "ERROR", "Invalid cpID!")
+		processError(nil, w, http.StatusBadRequest, "ERROR", "Invalid cpID!")
 		return
 	}
 
@@ -110,7 +110,7 @@ func getAssignmentsByCallpoint(w http.ResponseWriter, r *http.Request) {
 
 	asgns, err := gcp.AssignmentsByCpID(ctx, dsClient, cpID)
 	if err != nil {
-		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not list assignments!")
+		processError(err, w, http.StatusBadRequest, "ERROR", "Could not list assignments!")
 		return
 	}
 

@@ -14,7 +14,7 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 func getEventsByCallpoint(w http.ResponseWriter, r *http.Request) {
-	log.Println("[/assignments/callpoint:GET] Requested all devices associated to a callpoint")
+	log.Println("[/events/callpoint:GET] Requested all events associated to a callpoint")
 
 	params := mux.Vars(r)
 	cpID := params["cpID"]
@@ -22,7 +22,7 @@ func getEventsByCallpoint(w http.ResponseWriter, r *http.Request) {
 	log.Println("[getEventsByCallpoint] parameter cpID:", cpID)
 
 	if cpID == "" {
-		processError(nil, w, http.StatusInternalServerError, "ERROR", "Invalid cpID!")
+		processError(nil, w, http.StatusBadRequest, "ERROR", "Invalid cpID!")
 		return
 	}
 
@@ -32,7 +32,35 @@ func getEventsByCallpoint(w http.ResponseWriter, r *http.Request) {
 
 	events, err := gcp.EventsGetByCpID(ctx, dsClient, cpID)
 	if err != nil {
-		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not list assignments!")
+		processError(err, w, http.StatusBadRequest, "ERROR", "Could not list assignments!")
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	gcp.EventsToJSON(w, events)
+}
+
+func getEventsByAction(w http.ResponseWriter, r *http.Request) {
+	log.Println("[/events/action:GET] Requested all events associated to a action/notification")
+
+	params := mux.Vars(r)
+	acID := params["acID"]
+
+	log.Println("[getEventsByCallpoint] parameter cpID:", acID)
+
+	if acID == "" {
+		processError(nil, w, http.StatusBadRequest, "ERROR", "Invalid acID!")
+		return
+	}
+
+	log.Println("[getEventsByCallpoint] Create Context.")
+
+	ctx := context.Background()
+
+	events, err := gcp.EventsGetByAcID(ctx, dsClient, acID)
+	if err != nil {
+		processError(err, w, http.StatusBadRequest, "ERROR", "Could not list events by action!")
 		return
 	}
 
@@ -50,7 +78,7 @@ func getEvents(w http.ResponseWriter, r *http.Request) {
 
 	events, err := gcp.EventsListAll(ctx, dsClient)
 	if err != nil {
-		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not list events!")
+		processError(err, w, http.StatusBadRequest, "ERROR", "Could not list events!")
 		return
 	}
 
