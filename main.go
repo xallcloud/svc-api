@@ -16,7 +16,7 @@ import (
 
 const (
 	appName    = "svc-api"
-	appVersion = "0.0.1.alfa.25-events-order"
+	appVersion = "a.30-fix"
 	httpPort   = "8080"
 	topicName  = "notify"
 	projectID  = "xallcloud"
