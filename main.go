@@ -15,57 +15,59 @@ import (
 )
 
 const (
-	appName    = "svc-api"
-	appVersion = "a.1.31-msgs"
-	httpPort   = "8080"
-	topicName  = "notify"
-	projectID  = "xallcloud"
+	appName         = "svc-api"
+	appVersion      = "a.3.33-cleanup"
+	httpDefaultPort = "8080"
+	topicPubNotify  = "notify"
+	projectID       = "xallcloud"
 )
 
+// global resources for service
 var dsClient *datastore.Client
 var psClient *pubsub.Client
-var topic *pubsub.Topic
+var tcPubNot *pubsub.Topic
 
 func main() {
-	log.SetFlags(log.LstdFlags)
+	// service initialization
+	log.SetFlags(log.Lshortfile)
+
 	log.Println("Starting", appName, "version", appVersion)
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = httpPort
+		port = httpDefaultPort
 		log.Printf("Service: %s. Defaulting to port %s", appName, port)
 	}
 
 	var err error
 	ctx := context.Background()
-	// DATASTORE Initialization
-	log.Println("Connect to Google 'datastore' on project: " + projectID)
 
+	// DATASTORE initialization
+	log.Println("Connect to Google 'datastore' on project: " + projectID)
 	dsClient, err = datastore.NewClient(ctx, projectID)
 	if err != nil {
 		log.Fatalf("Failed to create datastore client: %v", err)
 	}
 
-	// PUBSUB Initialization
+	// PUBSUB initialization
 	log.Println("Connect to Google 'pub/sub' on project: " + projectID)
-
 	psClient, err = pubsub.NewClient(ctx, projectID)
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
 
-	topic, err = gcp.CreateTopic(topicName, psClient)
+	// topic to publish messages do type notify
+	tcPubNot, err = gcp.CreateTopic(topicPubNotify, psClient)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to create topic: %v", err)
 	}
+	log.Printf("Using topic %v to post actions.\n", tcPubNot)
 
-	fmt.Printf("Using topic %v to post actions.\n", topic)
-
-	// HTTP SERVER Initialization
-	router := mux.NewRouter()
+	// HTTP Server initialization
 	// define all the routes for the HTTP server.
-	// The implementation is done on the "handler*.go" files
-	// Common to all services
+	//   The implementation is done on the "handler*.go" files
+	router := mux.NewRouter()
+	// version
 	router.HandleFunc("/api/version", getVersion).Methods("GET")
 	// Callpoints
 	router.HandleFunc("/api/callpoints", getCallpoints).Methods("GET")
@@ -81,12 +83,12 @@ func main() {
 	// Actions
 	router.HandleFunc("/api/actions", getActions).Methods("GET")
 	router.HandleFunc("/api/action", postAction).Methods("POST")
-	//Events
+	// Events
 	router.HandleFunc("/api/events", getEvents).Methods("GET")
 	router.HandleFunc("/api/events/callpoint/{cpID}", getEventsByCallpoint).Methods("GET")
 	router.HandleFunc("/api/events/action/{acID}", getEventsByAction).Methods("GET")
 
-	// Start service
+	// Start web server
 	log.Printf("Service: %s. Listening on port %s", appName, port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), router))
 }

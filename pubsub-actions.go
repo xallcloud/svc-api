@@ -24,7 +24,7 @@ func PublishAction(ctx context.Context, client *pubsub.Client, ac *pbt.Action) e
 		Data: m,
 	}
 	var mID string
-	mID, err = topic.Publish(ctx, msg).Get(ctx)
+	mID, err = tcPubNot.Publish(ctx, msg).Get(ctx)
 	if err != nil {
 		return fmt.Errorf("could not publish message. %v", err)
 	}
