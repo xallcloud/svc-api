@@ -83,6 +83,7 @@ func postDevice(w http.ResponseWriter, r *http.Request) {
 
 	exists := (err != nil && key != nil)
 
+	w.Header().Set("Content-Type", "application/json")
 	if !exists {
 		log.Printf("[datastore] stored using key: %d | %s", key.ID, dv.DvID)
 		w.WriteHeader(http.StatusCreated)
@@ -90,8 +91,6 @@ func postDevice(w http.ResponseWriter, r *http.Request) {
 		log.Printf("[datastore] duplicate dvID. Was stored using key: %d | %s", key.ID, dv.DvID)
 		w.WriteHeader(http.StatusConflict)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(pbt.Device{DvID: dv.DvID, KeyID: dv.KeyID})
 }
 
@@ -126,8 +125,8 @@ func getDevices(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	gcp.DevicesToJSON(w, dvs)
 }
 

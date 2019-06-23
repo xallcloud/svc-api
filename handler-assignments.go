@@ -78,7 +78,7 @@ func postAssignment(w http.ResponseWriter, r *http.Request) {
 	asgn.KeyID = key.ID
 
 	exists := (err != nil && key != nil)
-
+	w.Header().Set("Content-Type", "application/json")
 	if !exists {
 		log.Printf("[postAssignment:datastore] stored using key: %d | %s", key.ID, asgn.AsID)
 		w.WriteHeader(http.StatusCreated)
@@ -86,8 +86,6 @@ func postAssignment(w http.ResponseWriter, r *http.Request) {
 		log.Printf("[postAssignment:datastore] duplicate dvID. Was stored using key: %d | %s", key.ID, asgn.AsID)
 		w.WriteHeader(http.StatusConflict)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(pbt.Assignment{AsID: asgn.AsID, KeyID: asgn.KeyID})
 }
 
@@ -113,8 +111,7 @@ func getAssignmentsByCallpoint(w http.ResponseWriter, r *http.Request) {
 		processError(err, w, http.StatusBadRequest, "ERROR", "Could not list assignments!")
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	gcp.AssignmentsToJSON(w, asgns)
 }

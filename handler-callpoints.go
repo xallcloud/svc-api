@@ -33,7 +33,6 @@ func postCallpoint(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("[postCallpoint] validate JSON")
 
-	//For now, only accept "Notify" Commands
 	if cp.CpID == "" && cp.AbsAddress == "" {
 		processError(nil, w, http.StatusBadRequest, "ERROR", "Mandatory field(s) missing!")
 		return
@@ -78,17 +77,14 @@ func postCallpoint(w http.ResponseWriter, r *http.Request) {
 
 	exists := (err != nil && key != nil)
 
+	w.Header().Set("Content-Type", "application/json")
 	if !exists {
-		//PubNotification(ctx, psClient, &n)
-
 		log.Printf("[datastore] stored using key: %d | %s", key.ID, cp.CpID)
 		w.WriteHeader(http.StatusCreated)
 	} else {
 		log.Printf("[datastore] duplicate eventID. Was stored using key: %d | %s", key.ID, cp.CpID)
 		w.WriteHeader(http.StatusConflict)
 	}
-
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(pbt.Callpoint{CpID: cp.CpID, KeyID: cp.KeyID})
 }
 
@@ -105,8 +101,8 @@ func getCallpoints(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	gcp.CallpointsToJSON(w, cps)
 }
 

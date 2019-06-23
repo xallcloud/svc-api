@@ -16,7 +16,7 @@ import (
 
 const (
 	appName         = "svc-api"
-	appVersion      = "a.3.33-cleanup"
+	appVersion      = "0.0.1.001"
 	httpDefaultPort = "8080"
 	topicPubNotify  = "notify"
 	projectID       = "xallcloud"

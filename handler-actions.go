@@ -13,25 +13,18 @@ import (
 	gcp "github.com/xallcloud/gcp"
 )
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-/// Actions
-////////////////////////////////////////////////////////////////////////////////////////////////
-
 func postAction(w http.ResponseWriter, r *http.Request) {
-	log.Println("[/action:POST] Post a new Callpoint.")
-
+	log.Println("[/action:POST] Post a new Action.")
 	log.Println("[postAction] decode JSON")
-
-	var ac pbt.Action
-
-	if err := jsonpb.Unmarshal(r.Body, &ac); err != nil {
+	var action pbt.Action
+	if err := jsonpb.Unmarshal(r.Body, &action); err != nil {
 		processError(err, w, http.StatusBadRequest, "ERROR", "Bad Request! Unable to decode JSON")
 		return
 	}
 
 	log.Println("[postAction] validate JSON")
 
-	if ac.AcID == "" || ac.CpID == "" || ac.Action == "" {
+	if action.AcID == "" || action.CpID == "" || action.Action == "" {
 		processError(nil, w, http.StatusBadRequest, "ERROR", "Mandatory field(s) missing!")
 		return
 	}
@@ -39,27 +32,24 @@ func postAction(w http.ResponseWriter, r *http.Request) {
 	log.Println("[postAction] Encode command back to JSON.")
 
 	ma := jsonpb.Marshaler{}
-	body, err := ma.MarshalToString(&ac)
+	body, err := ma.MarshalToString(&action)
 	if err != nil {
 		processError(err, w, http.StatusBadRequest, "ERROR", "Unable to encode proto data to JSON!")
 		return
 	}
-
 	if len(body) == 0 {
 		processError(err, w, http.StatusBadRequest, "ERROR", "Encoding proto data to JSON: empty raw body!")
 		return
 	}
 
 	dsAc := &dst.Action{
-		AcID:        ac.AcID,
-		CpID:        ac.CpID,
-		Action:      ac.Action,
-		Description: ac.Description,
+		AcID:        action.AcID,
+		CpID:        action.CpID,
+		Action:      action.Action,
+		Description: action.Description,
 		Created:     time.Now(),
 		RawRequest:  string(body),
 	}
-
-	//log.Println("[postDevice] dsAc.Settings", dsAc.Settings)
 
 	log.Println("[postDevice] Saving message to datastore")
 
@@ -70,26 +60,23 @@ func postAction(w http.ResponseWriter, r *http.Request) {
 		processError(err, w, http.StatusInternalServerError, "ERROR", "Could not save action to datastore!")
 		return
 	}
-	ac.KeyID = key.ID
+	action.KeyID = key.ID
 
 	exists := (err != nil && key != nil)
-
+	w.Header().Set("Content-Type", "application/json")
 	if !exists {
-		log.Printf("[datastore] stored using key: %d | %s", key.ID, ac.AcID)
+		log.Printf("[datastore] stored using key: %d | %s", key.ID, action.AcID)
 		w.WriteHeader(http.StatusCreated)
+		//POST message to PUB/SUB
+		if err := PublishAction(ctx, psClient, &action); err != nil {
+			processError(err, w, http.StatusInternalServerError, "ERROR", "Unable to publish action")
+			return
+		}
 	} else {
-		log.Printf("[datastore] duplicate acID. Was stored using key: %d | %s", key.ID, ac.AcID)
+		log.Printf("[datastore] duplicate acID. Was stored using key: %d | %s", key.ID, action.AcID)
 		w.WriteHeader(http.StatusConflict)
 	}
-
-	//POST message to PUB/SUB
-	if err := PublishAction(ctx, psClient, &ac); err != nil {
-		processError(err, w, http.StatusInternalServerError, "ERROR", "Unable to publish action")
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(pbt.Action{AcID: ac.AcID, KeyID: ac.KeyID})
+	json.NewEncoder(w).Encode(pbt.Action{AcID: action.AcID, KeyID: action.KeyID})
 }
 
 func getActions(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +92,7 @@ func getActions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	gcp.ActionsToJSON(w, dvs)
 }
