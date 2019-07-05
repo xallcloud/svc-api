@@ -23,12 +23,12 @@ function toggleCPT() {
         clearInterval(interval_controller)
         ACID = ""
         
-        setStateNotify("0");
+        setStateCp("0");
 
     } else {
         cpt.classList.add('activated');
 
-        setStateNotify("3");
+        setStateCp("1");
 
         postCPT();
     }
@@ -92,7 +92,21 @@ function setStateNotify(stateId) {
     }
     document.getElementById('barra-notify-progress1').src="./guide-line-" + SecState + ".fw.png";
     document.getElementById('barra-notify-progress2').src="./guide-line-" + SecState + ".fw.png";
+    document.getElementById('barra-notify-progress3').src="./guide-line-" + SecState + ".fw.png";
+    document.getElementById('barra-notify-progress4').src="./guide-line-" + SecState + ".fw.png";
     document.getElementById('barra-notify-v').src="./guide-vline-" + SecState + ".fw.png";
+}
+
+function setStateDevice1(stateId) {
+    console.log("setStateDevice1: ", stateId);
+
+    document.getElementById('barra-device1-state').src="./guide-center-" + stateId + ".fw.png";
+}
+
+function setStateDevice2(stateId) {
+    console.log("setStateDevice2: ", stateId);
+
+    document.getElementById('barra-device2-state').src="./guide-center-" + stateId + ".fw.png";
 }
 
 /** Serve para gerar UID unicos */
@@ -107,20 +121,76 @@ function uuidv4() {
  * update HTML table
  */
 function drawTable() {
-    var table = document.getElementById('table-body')
-    table.innerHTML = "";
+    //var table = document.getElementById('table-body')
+    //table.innerHTML = "";
+    var FinalACK = 0;
+    var FinalFailed = 0;
+
     activity_list.forEach(function (activity) {
 
         console.log("activity.evDescription: ", activity.evDescription);
 
         // draw table
         if (activity.evDescription == "Notification started") {
-            console.log("GOT --> (Notification started)", data);
-            document.getElementById('barraCpState').src="./guide-center-1.fw.png";
-            document.getElementById('barra-cp-progress1').src="./guide-line-1.fw.png";
-            document.getElementById('barra-cp-progress2').src="./guide-line-1.fw.png";
+            //console.log("GOT --> (Notification started)", activity.evDescription);
+            
+            //setStateCp("2");
+            setStateApi("2");
+            setStateDispatcher("1");
         }
-/*
+
+        if (activity.evDescription == "Notification sent to svc-notify.") {
+            //console.log("GOT --> (Notification sent to svc-notify.)", activity.evDescription);
+            
+            setStateDispatcher("2");
+            setStateNotify("1");
+        }
+
+        if (activity.evDescription == "Attempting to reach end device.") {
+            //console.log("GOT --> (Attempting to reach end device.)", activity.dvID);
+
+            setStateNotify("2");
+
+            if (activity.dvID == "UID-DEV-0000-0001") {
+                setStateDevice1("1");
+            }
+
+            if (activity.dvID == "UID-DEV-1000-0002") {
+                setStateDevice2("1");
+            }        
+        }
+
+        if (activity.evDescription == "Failed to deliver message to end device.") {
+            //console.log("GOT --> (Failed to deliver message to end device.)", activity.dvID);
+
+            if (activity.dvID == "UID-DEV-0000-0001") {
+                setStateDevice1("3");
+                FinalFailed += 1;
+            }
+
+            if (activity.dvID == "UID-DEV-1000-0002") {
+                setStateDevice2("3");
+                FinalFailed += 1;
+            }        
+        }
+
+        if (activity.evDescription == "User response: ack") {
+            //console.log("GOT --> (User response: ack)", activity.dvID);
+
+            if (activity.dvID == "UID-DEV-0000-0001") {
+                setStateDevice1("2");
+                FinalACK += 1;
+            }
+
+            if (activity.dvID == "UID-DEV-1000-0002") {
+                setStateDevice2("2");
+                FinalACK += 1;
+            }        
+        }
+
+        
+
+        /*
         var row = document.createElement('tr')
 
         var cell_activity = document.createElement('td')
@@ -138,6 +208,21 @@ function drawTable() {
         table.appendChild(row)
         */
     })
+
+
+    console.log("GOT --> FinalACK", FinalACK);
+    console.log("GOT --> FinalFailed", FinalFailed);
+
+    if ((FinalACK + FinalFailed) == 2){
+        console.log("Final State", FinalACK);
+        
+        if (FinalACK > 0) {
+            setStateCp("2");
+        } else{
+            setStateCp("3");
+        }
+
+    }
 }
 
 /**
@@ -161,7 +246,7 @@ function poll() {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", "https://xall.cloud/api/events/action/" + ACID, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
+    //xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
 
     xhr.onreadystatechange = function () {
         if (this.readyState != 4) return;
@@ -224,5 +309,7 @@ function postCPT() {
         "action": "activate",
         "description": "Activate Callpoint"
     }));
+
+    setStateApi("1");
 
 }
