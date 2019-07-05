@@ -9,10 +9,6 @@ var device_list = [
     {
         id: "UID-DEV-1000-0002",
         name: "Computador do Isac"
-    },
-    {
-        id: "UID-DEV-1000-0003",
-        name: "Campainha do Tito"
     }
 ]
 
@@ -26,10 +22,77 @@ function toggleCPT() {
         cpt.classList.remove('activated');
         clearInterval(interval_controller)
         ACID = ""
+        
+        setStateNotify("0");
+
     } else {
         cpt.classList.add('activated');
+
+        setStateNotify("3");
+
         postCPT();
     }
+}
+
+
+function setStateCp(stateId) {
+    console.log("setStateCp: ", stateId);
+
+    document.getElementById('barra-cp-state').src="./guide-center-" + stateId + ".fw.png";
+    
+    // options were it can be 0 or 1
+    var SecState = "0";
+    if (stateId != "0") {
+        SecState = "1"
+    }
+    document.getElementById('barra-cp-progress1').src="./guide-line-" + SecState + ".fw.png";
+    document.getElementById('barra-cp-progress2').src="./guide-line-" + SecState + ".fw.png";
+}
+
+
+function setStateApi(stateId) {
+    console.log("setStateApi: ", stateId);
+
+    document.getElementById('barra-api-state').src="./guide-center-" + stateId + ".fw.png";
+    
+    // options were it can be 0 or 1
+    var SecState = "0";
+    if (stateId != "0") {
+        SecState = "1"
+    }
+    document.getElementById('barra-api-progress1').src="./guide-line-" + SecState + ".fw.png";
+    document.getElementById('barra-api-progress2').src="./guide-line-" + SecState + ".fw.png";
+    document.getElementById('barra-api-v').src="./guide-vline-" + SecState + ".fw.png";
+}
+
+function setStateDispatcher(stateId) {
+    console.log("setStateDispatcher: ", stateId);
+
+    document.getElementById('barra-dispatcher-state').src="./guide-center-" + stateId + ".fw.png";
+    
+    // options were it can be 0 or 1
+    var SecState = "0";
+    if (stateId != "0") {
+        SecState = "1"
+    }
+    document.getElementById('barra-dispatcher-progress1').src="./guide-line-" + SecState + ".fw.png";
+    document.getElementById('barra-dispatcher-progress2').src="./guide-line-" + SecState + ".fw.png";
+    document.getElementById('barra-dispatcher-v').src="./guide-vline-" + SecState + ".fw.png";
+}
+
+function setStateNotify(stateId) {
+    console.log("setStateNotify: ", stateId);
+
+    document.getElementById('barra-notify-state').src="./guide-center-" + stateId + ".fw.png";
+    
+    // options were it can be 0 or 1
+    var SecState = "0";
+    if (stateId != "0") {
+        SecState = "1"
+    }
+    document.getElementById('barra-notify-progress1').src="./guide-line-" + SecState + ".fw.png";
+    document.getElementById('barra-notify-progress2').src="./guide-line-" + SecState + ".fw.png";
+    document.getElementById('barra-notify-v').src="./guide-vline-" + SecState + ".fw.png";
 }
 
 /** Serve para gerar UID unicos */
@@ -47,6 +110,17 @@ function drawTable() {
     var table = document.getElementById('table-body')
     table.innerHTML = "";
     activity_list.forEach(function (activity) {
+
+        console.log("activity.evDescription: ", activity.evDescription);
+
+        // draw table
+        if (activity.evDescription == "Notification started") {
+            console.log("GOT --> (Notification started)", data);
+            document.getElementById('barraCpState').src="./guide-center-1.fw.png";
+            document.getElementById('barra-cp-progress1').src="./guide-line-1.fw.png";
+            document.getElementById('barra-cp-progress2').src="./guide-line-1.fw.png";
+        }
+/*
         var row = document.createElement('tr')
 
         var cell_activity = document.createElement('td')
@@ -62,6 +136,7 @@ function drawTable() {
         row.appendChild(cell_timestamp)
 
         table.appendChild(row)
+        */
     })
 }
 
@@ -127,7 +202,7 @@ function postCPT() {
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "https://xall.cloud/api/action", true);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
+    //xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
 
     xhr.onreadystatechange = function () {
         if (this.readyState != 4) return;
@@ -149,6 +224,5 @@ function postCPT() {
         "action": "activate",
         "description": "Activate Callpoint"
     }));
-
 
 }

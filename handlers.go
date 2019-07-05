@@ -27,3 +27,10 @@ func setupResponse(w http.ResponseWriter) {
 	//w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 	//w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 }
+
+func optionsGeneric(w http.ResponseWriter, r *http.Request) {
+	log.Println("[/:OPTIONS] resquested. " + appVersion)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	//fmt.Fprint(w, fmt.Sprintf(`{"service": "%s", "version": "%s"}`, appName, appVersion))
+}

@@ -17,7 +17,7 @@ import (
 
 const (
 	appName         = "svc-api"
-	appVersion      = "0.0.4"
+	appVersion      = "0.0.9"
 	httpDefaultPort = "8080"
 	topicPubNotify  = "notify"
 	projectID       = "xallcloud"
@@ -84,14 +84,21 @@ func main() {
 	// Actions
 	router.HandleFunc("/api/actions", getActions).Methods("GET")
 	router.HandleFunc("/api/action", postAction).Methods("POST")
+	//generic options response
+	router.HandleFunc("/api/action", optionsGeneric).Methods("OPTIONS")
+	router.HandleFunc("/api/actions", optionsGeneric).Methods("OPTIONS")
 	// Events
 	router.HandleFunc("/api/events", getEvents).Methods("GET")
 	router.HandleFunc("/api/events/callpoint/{cpID}", getEventsByCallpoint).Methods("GET")
 	router.HandleFunc("/api/events/action/{acID}", getEventsByAction).Methods("GET")
+	//generic options response
+	router.HandleFunc("/api/events", optionsGeneric).Methods("OPTIONS")
+	router.HandleFunc("/api/events/callpoint/{cpID}", optionsGeneric).Methods("OPTIONS")
+	router.HandleFunc("/api/events/action/{acID}", optionsGeneric).Methods("OPTIONS")
 
 	// Allow CORS
-	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
-	originsOk := handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type"})
+	originsOk := handlers.AllowedOrigins([]string{"*"})
 	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
 
 	// Start web server

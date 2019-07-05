@@ -1,0 +1,41 @@
+.row {
+  display: flex;
+}
+
+.column {
+  flex: 33.33%;
+  padding: 0px;
+}
+
+.maintable{
+  border: 10px;
+  padding: 0px 0px;
+  border-collapse: collapse;
+}
+
+
+.center-0 {
+  background: url("./guide-center-0.fw.png") no-repeat;
+}
+
+.center-1 {
+  background: url("./guide-center-1.fw.png") no-repeat;
+}
+
+.center-2 {
+  background: url("./guide-center-2.fw.png") no-repeat;
+}
+
+.center-3 {
+  background: url("./guide-center-3.fw.png") no-repeat;
+}
+
+.cpt {
+  cursor: pointer;
+  border: 0px solid #fff;
+  border-radius: 150px;
+}
+
+.cpt.activated {
+  border: 0px solid #fff;
+}
