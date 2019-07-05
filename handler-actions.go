@@ -76,6 +76,7 @@ func postAction(w http.ResponseWriter, r *http.Request) {
 		log.Printf("[datastore] duplicate acID. Was stored using key: %d | %s", key.ID, action.AcID)
 		w.WriteHeader(http.StatusConflict)
 	}
+	setupResponse(w)
 	json.NewEncoder(w).Encode(pbt.Action{AcID: action.AcID, KeyID: action.KeyID})
 }
 

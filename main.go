@@ -9,6 +9,7 @@ import (
 
 	"cloud.google.com/go/datastore"
 	"cloud.google.com/go/pubsub"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
 	gcp "github.com/xallcloud/gcp"
@@ -16,7 +17,7 @@ import (
 
 const (
 	appName         = "svc-api"
-	appVersion      = "0.0.1"
+	appVersion      = "0.0.4"
 	httpDefaultPort = "8080"
 	topicPubNotify  = "notify"
 	projectID       = "xallcloud"
@@ -88,7 +89,12 @@ func main() {
 	router.HandleFunc("/api/events/callpoint/{cpID}", getEventsByCallpoint).Methods("GET")
 	router.HandleFunc("/api/events/action/{acID}", getEventsByAction).Methods("GET")
 
+	// Allow CORS
+	headersOk := handlers.AllowedHeaders([]string{"X-Requested-With"})
+	originsOk := handlers.AllowedOrigins([]string{os.Getenv("ORIGIN_ALLOWED")})
+	methodsOk := handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+
 	// Start web server
 	log.Printf("Service: %s. Listening on port %s", appName, port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), router))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), handlers.CORS(originsOk, headersOk, methodsOk)(router)))
 }

@@ -1,0 +1,71 @@
+.cpts {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.cpts img {
+    max-height: 150px;
+    max-width: 150px;
+}
+
+.cpt {
+    cursor: pointer;
+    border: 25px solid #fff;
+    border-radius: 150px;
+}
+
+.cpt.activated {
+    border: 25px solid green;
+}
+
+.assign_to {
+    font-size: 30px;
+    color: blue;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-left: 35px;
+    margin-right: 35px;
+}
+
+.device {
+    margin-right: 30px;
+    border: 25px solid #fff;
+    border-radius: 150px;
+}
+
+/* CORES */
+
+.device.RED {
+    border: 25px solid red;
+}
+
+.device.BLUE {
+    border: 25px solid blue;
+}
+
+.device.GREEN {
+    border: 25px solid green;
+}
+
+.device.GREY {
+    border: 25px solid #666;
+}
+
+
+
+.device-container {
+    text-align: center;
+}
+
+table {
+    width: 100%;
+}
+
+thead {
+    background: blue;
+    color: #fff;
+}

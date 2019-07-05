@@ -66,6 +66,7 @@ func getEventsByAction(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	setupResponse(w)
 	gcp.EventsToJSON(w, events)
 }
 
