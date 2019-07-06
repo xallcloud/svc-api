@@ -54,6 +54,8 @@ function setStateCp(stateId) {
         document.getElementById('cpt').src = "./callpoint-3.png";
     } else if (stateId == "4") {
         document.getElementById('cpt').src = "./callpoint-4.png";
+    } else if (stateId == "5") {
+        document.getElementById('cpt').src = "./callpoint-5.png";
     }
 }
 
@@ -196,6 +198,7 @@ function drawTable() {
 
 
     var FinalACK = 0;
+    var FinalReject = 0;
     var FinalFailed = 0;
     var FinalState = 0;
 
@@ -255,6 +258,20 @@ function drawTable() {
             }        
         }
 
+        if (activity.evDescription == "Timeout trying to deliver message to end device.") {
+            //console.log("GOT --> (Failed to deliver message to end device.)", activity.dvID);
+
+            if (activity.dvID == "UID-DEV-0000-0001") {
+                setStateDevice1("3");
+                FinalFailed += 1;
+            }
+
+            if (activity.dvID == "UID-DEV-1000-0002") {
+                setStateDevice2("3");
+                FinalFailed += 1;
+            }        
+        }
+
         if (activity.evDescription == "User response: ack") {
             //console.log("GOT --> (User response: ack)", activity.dvID);
 
@@ -271,12 +288,25 @@ function drawTable() {
             }        
         }
 
-        if (activity.evDescription == "Notification reached final state.") {
+        if (activity.evDescription == "User response: cancel") {
             //console.log("GOT --> (User response: ack)", activity.dvID);
 
-            
-            FinalState += 1;
-            
+            if (activity.dvID == "UID-DEV-0000-0001") {
+                setStateDevice1("5");
+                //setStateCp("5");
+                FinalReject += 1;
+            }
+
+            if (activity.dvID == "UID-DEV-1000-0002") {
+                setStateDevice2("5");
+                //setStateCp("5");
+                FinalReject += 1;
+            }        
+        }
+
+        if (activity.evDescription == "Notification reached final state.") {
+            //console.log("GOT --> (User response: ack)", activity.dvID);            
+            FinalState += 1;            
         }
 
         
@@ -308,10 +338,13 @@ function drawTable() {
         console.log("Final State", FinalACK);
         
         if (FinalACK == 0) {
-            setStateCp("3");
-        }
+            if (FinalReject >= 1){
+                setStateCp("5");            
+            } else {
+                setStateCp("3"); 
+            }
 
-        
+        }
         //Stop
         clearInterval(interval_controller)
     }
