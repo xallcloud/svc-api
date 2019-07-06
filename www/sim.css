@@ -1,3 +1,7 @@
+table {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+  }
+
 .row {
   display: flex;
 }
@@ -38,4 +42,13 @@
 
 .cpt.activated {
   border: 0px solid #fff;
+}
+
+.tableList {
+    width: 100%;
+}
+
+thead {
+    background: blue;
+    color: #fff;
 }

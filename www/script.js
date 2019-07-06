@@ -1,14 +1,15 @@
 var ACID = ""
+var StartTime = ""
 var interval_controller = 0
 var activity_list = []
 var device_list = [
     {
         id: "UID-DEV-0000-0001",
-        name: "Telefone do Mário"
+        name: "Phone 1"
     },
     {
         id: "UID-DEV-1000-0002",
-        name: "Computador do Isac"
+        name: "Mobile 2"
     }
 ]
 
@@ -24,7 +25,11 @@ function toggleCPT() {
         ACID = ""
         
         setStateCp("0");
-
+        setStateApi("0");
+        setStateDispatcher("0");
+        setStateNotify("0");
+        setStateDevice1("0");
+        setStateDevice2("0");
     } else {
         cpt.classList.add('activated');
 
@@ -120,11 +125,38 @@ function uuidv4() {
 /**
  * update HTML table
  */
+
+function AddFirstRow(){
+
+                var table = document.getElementById('table-body')
+                table.innerHTML = "";
+
+                var row = document.createElement('tr')
+                var cell_activity = document.createElement('td')
+                var cell_timestamp = document.createElement('td')
+                var cell_device = document.createElement('td')
+
+                cell_activity.innerText = "Action sent to API."
+                cell_timestamp.innerText = StartTime
+                cell_device.innerText = "--"
+
+                row.appendChild(cell_device)
+                row.appendChild(cell_activity)
+                row.appendChild(cell_timestamp)
+
+                table.appendChild(row)
+}
+
+
 function drawTable() {
-    //var table = document.getElementById('table-body')
-    //table.innerHTML = "";
+    var table = document.getElementById('table-body')
+    table.innerHTML = "";
+    AddFirstRow();
+
+
     var FinalACK = 0;
     var FinalFailed = 0;
+    var FinalState = 0;
 
     activity_list.forEach(function (activity) {
 
@@ -146,10 +178,18 @@ function drawTable() {
             setStateNotify("1");
         }
 
+
+        if (activity.evDescription == "Got Notification on svc-notify.") {
+            //console.log("GOT --> (Notification sent to svc-notify.)", activity.evDescription);
+            
+            setStateNotify("2");
+        }
+
+
         if (activity.evDescription == "Attempting to reach end device.") {
             //console.log("GOT --> (Attempting to reach end device.)", activity.dvID);
 
-            setStateNotify("2");
+            //setStateNotify("2");
 
             if (activity.dvID == "UID-DEV-0000-0001") {
                 setStateDevice1("1");
@@ -188,9 +228,17 @@ function drawTable() {
             }        
         }
 
+        if (activity.evDescription == "Notification reached final state.") {
+            //console.log("GOT --> (User response: ack)", activity.dvID);
+
+            
+            FinalState += 1;
+            
+        }
+
         
 
-        /*
+        
         var row = document.createElement('tr')
 
         var cell_activity = document.createElement('td')
@@ -206,14 +254,14 @@ function drawTable() {
         row.appendChild(cell_timestamp)
 
         table.appendChild(row)
-        */
+        
     })
 
 
     console.log("GOT --> FinalACK", FinalACK);
     console.log("GOT --> FinalFailed", FinalFailed);
 
-    if ((FinalACK + FinalFailed) == 2){
+    if (FinalState >= 2){
         console.log("Final State", FinalACK);
         
         if (FinalACK > 0) {
@@ -222,6 +270,9 @@ function drawTable() {
             setStateCp("3");
         }
 
+        
+        //Stop
+        clearInterval(interval_controller)
     }
 }
 
@@ -296,6 +347,13 @@ function postCPT() {
             var data = JSON.parse(this.responseText);
             if (data.AcID && data.KeyID) {
                 interval_controller = setInterval(poll, 2000)
+
+                StartTime = "2019-07-05 22:56:23.000000 +0000 UTC";
+
+                setStateApi("2");
+
+                AddFirstRow();
+
             }
             console.log("GOT --> ", data)
         }
@@ -310,6 +368,6 @@ function postCPT() {
         "description": "Activate Callpoint"
     }));
 
-    setStateApi("1");
+    
 
 }
