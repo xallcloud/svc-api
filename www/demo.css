@@ -44,11 +44,58 @@ table.servicesTable {
     border: 0px solid #fff;
   }
   
+
+  .activitie{
+    font-family: Constantia, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 30px;
+  }
+
   .tableList {
       width: 100%;
   }
   
   thead {
-      background: blue;
+      background: rgb(18, 18, 136);
       color: #fff;
+  }
+
+  .redRow {
+    background: #D93600;
+    color: #fff;
+}
+
+.blueRow {
+  background: #305598;
+  color: #fff;
+}
+
+.pubsubTable {
+  width: 100%;
+  border: 0px solid rgb(0, 0, 0);
+    text-align: center;
+    padding: 0px 0px;
+    font-size: 0;
+}
+
+.datastoreTable {
+  width: 100%;
+  border: 0px solid rgb(0, 0, 0);
+    text-align: center;
+    padding: 0px 0px;
+    font-size: 0;
+}
+
+.redRowState {
+  background: #D93600;
+  color: #fff;
+}
+
+.blueRowState {
+background: #305598;
+color: #fff;
+}
+
+.blackRowState {
+  background: #ffffff;
+  color: #000000;
   }

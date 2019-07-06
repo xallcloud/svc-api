@@ -5,11 +5,11 @@ var activity_list = []
 var device_list = [
     {
         id: "UID-DEV-0000-0001",
-        name: "Phone 1"
+        name: "Mobile 2"
     },
     {
         id: "UID-DEV-1000-0002",
-        name: "Mobile 2"
+        name: "Phone 1"
     }
 ]
 
@@ -196,6 +196,8 @@ function drawTable() {
     table.innerHTML = "";
     AddFirstRow();
 
+    var cName = "blackRowState";
+
 
     var FinalACK = 0;
     var FinalReject = 0;
@@ -203,6 +205,8 @@ function drawTable() {
     var FinalState = 0;
 
     activity_list.forEach(function (activity) {
+
+        cName = "blackRowState";
 
         console.log("activity.evDescription: ", activity.evDescription);
 
@@ -255,7 +259,8 @@ function drawTable() {
             if (activity.dvID == "UID-DEV-1000-0002") {
                 setStateDevice2("3");
                 FinalFailed += 1;
-            }        
+            } 
+            cName = "redRowState";       
         }
 
         if (activity.evDescription == "Timeout trying to deliver message to end device.") {
@@ -269,7 +274,8 @@ function drawTable() {
             if (activity.dvID == "UID-DEV-1000-0002") {
                 setStateDevice2("3");
                 FinalFailed += 1;
-            }        
+            }
+            cName = "redRowState";        
         }
 
         if (activity.evDescription == "User response: ack") {
@@ -285,7 +291,8 @@ function drawTable() {
                 setStateDevice2("4");
                 setStateCp("4");
                 FinalACK += 1;
-            }        
+            } 
+            cName = "blueRowState";       
         }
 
         if (activity.evDescription == "User response: cancel") {
@@ -301,7 +308,8 @@ function drawTable() {
                 setStateDevice2("5");
                 //setStateCp("5");
                 FinalReject += 1;
-            }        
+            } 
+            cName = "redRowState";       
         }
 
         if (activity.evDescription == "Notification reached final state.") {
@@ -313,6 +321,8 @@ function drawTable() {
 
         
         var row = document.createElement('tr')
+
+        row.className = cName;
 
         var cell_activity = document.createElement('td')
         var cell_timestamp = document.createElement('td')
@@ -327,6 +337,8 @@ function drawTable() {
         row.appendChild(cell_timestamp)
 
         table.appendChild(row)
+
+        
         
     })
 
@@ -406,6 +418,15 @@ function processActivities() {
     drawTable();
 }
 
+function ISODateString(d) {
+    function pad(n) {return n<10 ? '0'+n : n}
+    return d.getUTCFullYear()+'-'
+         + pad(d.getUTCMonth()+1)+'-'
+         + pad(d.getUTCDate())+' '
+         + pad(d.getUTCHours())+':'
+         + pad(d.getUTCMinutes())+':'
+         + pad(d.getUTCSeconds())+'.000000 +0000 UTC'
+}
 
 function postCPT() {
 
@@ -422,7 +443,10 @@ function postCPT() {
             if (data.AcID && data.KeyID) {
                 interval_controller = setInterval(poll, 1000)
 
-                StartTime = "2019-07-05 22:56:23.000000 +0000 UTC";
+                //StartTime = "2019-07-05 22:56:23.000000 +0000 UTC";
+
+                var d = new Date();
+                StartTime = ISODateString(d); 
 
                 setStateApi("1");
                 setStateCp("2");
