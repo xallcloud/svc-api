@@ -43,75 +43,116 @@ function toggleCPT() {
 function setStateCp(stateId) {
     console.log("setStateCp: ", stateId);
 
-    document.getElementById('barra-cp-state').src="./guide-center-" + stateId + ".fw.png";
-    
-    // options were it can be 0 or 1
-    var SecState = "0";
-    if (stateId != "0") {
-        SecState = "1"
+    if (stateId == "0") {
+        document.getElementById('cpt').src = "./callpoint-0.png";
+        document.getElementById('cp-in').src="./dev-out-0.png";
+    } else if (stateId == "1") {
+        document.getElementById('cp-in').src="./dev-out-1.png";
+    } else if (stateId == "2") {
+        document.getElementById('cp-in').src="./dev-out-2.png";
+    } else if (stateId == "3") {
+        document.getElementById('cpt').src = "./callpoint-3.png";
+    } else if (stateId == "4") {
+        document.getElementById('cpt').src = "./callpoint-4.png";
     }
-    document.getElementById('barra-cp-progress1').src="./guide-line-" + SecState + ".fw.png";
-    document.getElementById('barra-cp-progress2').src="./guide-line-" + SecState + ".fw.png";
 }
 
 
 function setStateApi(stateId) {
     console.log("setStateApi: ", stateId);
 
-    document.getElementById('barra-api-state').src="./guide-center-" + stateId + ".fw.png";
-    
-    // options were it can be 0 or 1
-    var SecState = "0";
-    if (stateId != "0") {
-        SecState = "1"
+    if (stateId == "0") {
+        document.getElementById('svc-api-top-out').src = "./svc-top-p2.png";
+        document.getElementById('svc-api-bottom-out').src = "./svc-bottom-p0.png";
+    } else {
+        document.getElementById('svc-api-top-out').src = "./svc-top-out.png";
+        document.getElementById('svc-api-bottom-out').src = "./svc-bottom-out.png";
     }
-    document.getElementById('barra-api-progress1').src="./guide-line-" + SecState + ".fw.png";
-    document.getElementById('barra-api-progress2').src="./guide-line-" + SecState + ".fw.png";
-    document.getElementById('barra-api-v').src="./guide-vline-" + SecState + ".fw.png";
 }
 
 function setStateDispatcher(stateId) {
     console.log("setStateDispatcher: ", stateId);
 
-    document.getElementById('barra-dispatcher-state').src="./guide-center-" + stateId + ".fw.png";
-    
-    // options were it can be 0 or 1
-    var SecState = "0";
-    if (stateId != "0") {
-        SecState = "1"
+    if (stateId == "0") {
+        document.getElementById('svc-dispatcher-top-in').src = "./svc-top-p1.png";
+        document.getElementById('svc-dispatcher-top-out').src = "./svc-top-p2.png";
+        document.getElementById('svc-dispatcher-bottom-out').src = "./svc-bottom-p0.png";
+    } else if (stateId == "1") {
+        document.getElementById('svc-dispatcher-top-in').src = "./svc-top-in.png";
+        document.getElementById('svc-dispatcher-top-out').src = "./svc-top-p2.png";
+        document.getElementById('svc-dispatcher-bottom-out').src = "./svc-bottom-out.png";
+    } else {
+        document.getElementById('svc-dispatcher-top-in').src = "./svc-top-in.png";
+        document.getElementById('svc-dispatcher-top-out').src = "./svc-top-out.png";
+        document.getElementById('svc-dispatcher-bottom-out').src = "./svc-bottom-out.png";
     }
-    document.getElementById('barra-dispatcher-progress1').src="./guide-line-" + SecState + ".fw.png";
-    document.getElementById('barra-dispatcher-progress2').src="./guide-line-" + SecState + ".fw.png";
-    document.getElementById('barra-dispatcher-v').src="./guide-vline-" + SecState + ".fw.png";
 }
 
 function setStateNotify(stateId) {
     console.log("setStateNotify: ", stateId);
 
-    document.getElementById('barra-notify-state').src="./guide-center-" + stateId + ".fw.png";
-    
-    // options were it can be 0 or 1
-    var SecState = "0";
-    if (stateId != "0") {
-        SecState = "1"
+    if (stateId == "0") {
+        document.getElementById('svc-notify-top-in').src = "./svc-top-p1.png";
+        document.getElementById('svc-notify-bottom-out').src = "./svc-bottom-p0.png";
+    } else if (stateId == "1") {
+        document.getElementById('svc-notify-top-in').src = "./svc-top-in.png";
+        document.getElementById('svc-notify-bottom-out').src = "./svc-bottom-out.png";
+    } else {
+        document.getElementById('svc-notify-top-in').src = "./svc-top-in.png";
+        document.getElementById('svc-notify-bottom-out').src = "./svc-bottom-out.png";
     }
-    document.getElementById('barra-notify-progress1').src="./guide-line-" + SecState + ".fw.png";
-    document.getElementById('barra-notify-progress2').src="./guide-line-" + SecState + ".fw.png";
-    document.getElementById('barra-notify-progress3').src="./guide-line-" + SecState + ".fw.png";
-    document.getElementById('barra-notify-progress4').src="./guide-line-" + SecState + ".fw.png";
-    document.getElementById('barra-notify-v').src="./guide-vline-" + SecState + ".fw.png";
 }
 
 function setStateDevice1(stateId) {
     console.log("setStateDevice1: ", stateId);
 
-    document.getElementById('barra-device1-state').src="./guide-center-" + stateId + ".fw.png";
+    document.getElementById('dev1-out').src="./dev-out-" + stateId + ".fw.png";
+
+    if (stateId == "0") { //reset
+        document.getElementById('dev1-out').src = "./dev-out-0.png";
+        document.getElementById('dev1-in').src = "./dev1-in-0.png";
+    } else if (stateId == "1") { //sending
+        document.getElementById('dev1-out').src = "./dev-out-1.png";
+        document.getElementById('dev1-in').src = "./dev1-in-0.png";
+    } else if (stateId == "2") { //sent
+        document.getElementById('dev1-out').src = "./dev-out-2.png";
+        document.getElementById('dev1-in').src = "./dev1-in-0.png";
+    } else if (stateId == "3") { //error sending
+        document.getElementById('dev1-out').src = "./dev-out-3.png";
+        document.getElementById('dev1-in').src = "./dev1-in-0.png";
+    } else if (stateId == "4") { //acepted
+        document.getElementById('dev1-out').src = "./dev-out-2.png";
+        document.getElementById('dev1-in').src = "./dev1-in-4.png";
+    } else { //user rejected
+        document.getElementById('dev1-out').src = "./dev-out-2.png";
+        document.getElementById('dev1-in').src = "./dev1-in-3.png";
+    }
 }
 
 function setStateDevice2(stateId) {
-    console.log("setStateDevice2: ", stateId);
+    console.log("setStateDevice1: ", stateId);
 
-    document.getElementById('barra-device2-state').src="./guide-center-" + stateId + ".fw.png";
+    document.getElementById('dev2-out').src="./dev-out-" + stateId + ".fw.png";
+
+    if (stateId == "0") { //reset
+        document.getElementById('dev2-out').src = "./dev-out-0.png";
+        document.getElementById('dev2-in').src = "./dev2-in-0.png";
+    } else if (stateId == "1") { //sending
+        document.getElementById('dev2-out').src = "./dev-out-1.png";
+        document.getElementById('dev2-in').src = "./dev2-in-0.png";
+    } else if (stateId == "2") { //sent
+        document.getElementById('dev2-out').src = "./dev-out-2.png";
+        document.getElementById('dev2-in').src = "./dev2-in-0.png";
+    } else if (stateId == "3") { //error sending
+        document.getElementById('dev2-out').src = "./dev-out-3.png";
+        document.getElementById('dev2-in').src = "./dev2-in-0.png";
+    } else if (stateId == "4") { //acepted
+        document.getElementById('dev2-out').src = "./dev-out-2.png";
+        document.getElementById('dev2-in').src = "./dev2-in-4.png";
+    } else { //user rejected
+        document.getElementById('dev2-out').src = "./dev-out-2.png";
+        document.getElementById('dev2-in').src = "./dev2-in-3.png";
+    }
 }
 
 /** Serve para gerar UID unicos */
@@ -128,23 +169,23 @@ function uuidv4() {
 
 function AddFirstRow(){
 
-                var table = document.getElementById('table-body')
-                table.innerHTML = "";
+    var table = document.getElementById('table-body')
+    table.innerHTML = "";
 
-                var row = document.createElement('tr')
-                var cell_activity = document.createElement('td')
-                var cell_timestamp = document.createElement('td')
-                var cell_device = document.createElement('td')
+    var row = document.createElement('tr')
+    var cell_activity = document.createElement('td')
+    var cell_timestamp = document.createElement('td')
+    var cell_device = document.createElement('td')
 
-                cell_activity.innerText = "Action sent to API."
-                cell_timestamp.innerText = StartTime
-                cell_device.innerText = "--"
+    cell_activity.innerText = "Action sent to API."
+    cell_timestamp.innerText = StartTime
+    cell_device.innerText = "--"
 
-                row.appendChild(cell_device)
-                row.appendChild(cell_activity)
-                row.appendChild(cell_timestamp)
+    row.appendChild(cell_device)
+    row.appendChild(cell_activity)
+    row.appendChild(cell_timestamp)
 
-                table.appendChild(row)
+    table.appendChild(row)
 }
 
 
@@ -182,14 +223,14 @@ function drawTable() {
         if (activity.evDescription == "Got Notification on svc-notify.") {
             //console.log("GOT --> (Notification sent to svc-notify.)", activity.evDescription);
             
-            setStateNotify("2");
+            setStateNotify("1");
         }
 
 
         if (activity.evDescription == "Attempting to reach end device.") {
             //console.log("GOT --> (Attempting to reach end device.)", activity.dvID);
 
-            //setStateNotify("2");
+            setStateNotify("2");
 
             if (activity.dvID == "UID-DEV-0000-0001") {
                 setStateDevice1("1");
@@ -218,12 +259,14 @@ function drawTable() {
             //console.log("GOT --> (User response: ack)", activity.dvID);
 
             if (activity.dvID == "UID-DEV-0000-0001") {
-                setStateDevice1("2");
+                setStateDevice1("4");
+                setStateCp("4");
                 FinalACK += 1;
             }
 
             if (activity.dvID == "UID-DEV-1000-0002") {
-                setStateDevice2("2");
+                setStateDevice2("4");
+                setStateCp("4");
                 FinalACK += 1;
             }        
         }
@@ -264,9 +307,7 @@ function drawTable() {
     if (FinalState >= 2){
         console.log("Final State", FinalACK);
         
-        if (FinalACK > 0) {
-            setStateCp("2");
-        } else{
+        if (FinalACK == 0) {
             setStateCp("3");
         }
 
@@ -322,9 +363,9 @@ function processActivities() {
 
 
     /** devices */
-    var device_phone = document.getElementById('dev-phone')
-    var device_pc = document.getElementById('dev-computer')
-    var device_bell = document.getElementById('dev-bell')
+    //var device_phone = document.getElementById('dev-phone')
+    //var device_pc = document.getElementById('dev-computer')
+    //var device_bell = document.getElementById('dev-bell')
 
     // add CSS class:
     //  device_phone.classList.add('RED')   --> classes implementadas "RED", "GREEN", "BLUE", "GREY"
@@ -346,11 +387,12 @@ function postCPT() {
         if (this.status < 300) {
             var data = JSON.parse(this.responseText);
             if (data.AcID && data.KeyID) {
-                interval_controller = setInterval(poll, 2000)
+                interval_controller = setInterval(poll, 1000)
 
                 StartTime = "2019-07-05 22:56:23.000000 +0000 UTC";
 
-                setStateApi("2");
+                setStateApi("1");
+                setStateCp("2");
 
                 AddFirstRow();
 

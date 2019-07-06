@@ -31,3 +31,24 @@ table.servicesTable {
     background-color: #FFFFFF;
     text-align: center;
   }
+
+
+
+  .cpt {
+    cursor: pointer;
+    border: 0px solid #fff;
+    /*border-radius: 150px;*/
+  }
+  
+  .cpt.activated {
+    border: 0px solid #fff;
+  }
+  
+  .tableList {
+      width: 100%;
+  }
+  
+  thead {
+      background: blue;
+      color: #fff;
+  }
