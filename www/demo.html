@@ -24,7 +24,7 @@
                     <table class="callpointTable"><tbody><tr><td>
                             <img onclick="toggleCPT()" id="cpt" class="cpt" src="./callpoint.fw.png" alt="coracao">
                     </td><td>
-                            <img id="barra-cp-fixed-initial" class="imNext" src="./blank140x140.png">
+                            <img id="cp-in" class="imNext" src="./dev-out-0.png">
                     </td></tr></tbody></tr></table>
 
                          
@@ -41,11 +41,11 @@
                                     
                                         <table class="svcTable">
                                                 <tr>
-                                                    <td><img id="barra-cp-fixed-initial" class="imNext" src="./svc-top-p1.png"><img id="barra-cp-progress1" class="imNext" src="./svc-top-out.png"></td>
+                                                    <td><img id="svc-api-top-in" class="imNext" src="./svc-top-p1.png"><img id="svc-api-top-out" class="imNext" src="./svc-top-p2.png"></td>
                                                     <td>&nbsp;</td>
-                                                    <td><img id="barra-cp-fixed-initial" class="imNext" src="./svc-top-in.png"><img id="barra-cp-progress1" class="imNext" src="./svc-top-out.png"></td>
+                                                    <td><img id="svc-dispatcher-top-in" class="imNext" src="./svc-top-p1.png"><img id="svc-dispatcher-top-out" class="imNext" src="./svc-top-p2.png"></td>
                                                     <td>&nbsp;</td>
-                                                    <td><img id="barra-cp-fixed-initial" class="imNext" src="./svc-top-in.png"><img id="barra-cp-progress1" class="imNext" src="./svc-top-p2.png"></td>
+                                                    <td><img id="svc-notify-top-in" class="imNext" src="./svc-top-p1.png"><img id="svc-notify-top-out" class="imNext" src="./svc-top-p2.png"></td>
                                                     </tr>
                                                     <tr>
                                                     <td><img id="barra-cp-fixed-initial" class="imNext" src="./service-api.png"></td>
@@ -55,11 +55,11 @@
                                                     <td><img id="barra-cp-fixed-initial" class="imNext" src="./service-notify.png"></td>
                                                 </tr>
                                                 <tr>
-                                                        <td><img id="barra-cp-fixed-initial" class="imNext" src="./svc-bottom-p0.png"></td>
-                                                        <td><img id="barra-cp-fixed-initial" class="imNext" src="./blank100x100.png"></td>
-                                                        <td><img id="barra-cp-fixed-initial" class="imNext" src="./svc-bottom-out.png"></td>
-                                                        <td><img id="barra-cp-fixed-initial" class="imNext" src="./blank100x100.png"></td>
-                                                        <td><img id="barra-cp-fixed-initial" class="imNext" src="./svc-bottom-out.png"></td>
+                                                        <td><img id="svc-api-bottom-out" class="imNext" src="./svc-bottom-p0.png"></td>
+                                                        <td><img class="imNext" src="./blank100x100.png"></td>
+                                                        <td><img id="svc-dispatcher-bottom-out" class="imNext" src="./svc-bottom-p0.png"></td>
+                                                        <td><img class="imNext" src="./blank100x100.png"></td>
+                                                        <td><img id="svc-notify-bottom-out" class="imNext" src="./svc-bottom-p0.png"></td>
                                                 </tr>
                                                 </table>
                 
@@ -80,17 +80,17 @@
                                 <table class="devicesTable">
                                         <tbody>
                                         <tr>
-                                        <td><img id="barra-cp-fixed-initial" class="imNext" src="./blank100x100.png"></td>
+                                        <td><img id="dev1-out" class="imNext" src="./dev-out-0.png"></td>
                                         <td><img id="dev-phone" class="device" src="./device1.fw.png" alt="telefone do mario"></td>
                                         </tr>
                                         <tr>
-                                        <td colspan="2"><img id="barra-cp-fixed-initial" class="imNext" src="./blank50x50.png"></td>
+                                        <td colspan="2"><img id="dev1-in" class="imNext" src="./dev1-in-0.png"></td>
                                         </tr>
                                         <tr>
-                                        <td colspan="2"><img id="barra-cp-fixed-initial" class="imNext" src="./blank50x50.png"></td>
+                                        <td colspan="2"><img id="barra-cp-fixed-initial" class="imNext" src="./dev2-in-0.png"></td>
                                         </tr>
                                         <tr>
-                                        <td><img id="barra-cp-fixed-initial" class="imNext" src="./blank100x100.png"></td>
+                                        <td><img id="dev2-out" class="imNext" src="./dev-out-0.png"></td>
                                         <td><img id="dev-phone" class="device" src="./device2.fw.png" alt="telefone do mario"></td>
                                         </tr>
                                         </tbody>
@@ -107,7 +107,25 @@
         
 
     
+                <hr>
 
+
+                <div class="activitie">
+                    <table id="table" class="tableList">
+                        <thead>
+                            <tr>
+                                <th>Dispositivo</th>
+                                <th>Atividade</th>
+                                <th>Timestamp</th>
+            
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+            
+                        </tbody>
+                    </table>
+                </div>
+            
 
 
   </body>
